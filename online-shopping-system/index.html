@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Shopping System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="index.html">Online Store</a>
+            </div>
+            <div class="nav-search">
+                <input type="text" id="search-input" placeholder="Search products...">
+                <button id="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html"><i class="fas fa-home"></i> Home</a>
+                <a href="#" id="cart-link"><i class="fas fa-shopping-cart"></i> Cart <span id="cart-count">0</span></a>
+                <a href="#" id="orders-link"><i class="fas fa-clipboard-list"></i> My Orders</a>
+                <div class="auth-buttons">
+                    <button id="login-btn" class="btn btn-outline">Login</button>
+                    <button id="register-btn" class="btn btn-primary">Register</button>
+                    <div id="user-info" style="display: none;">
+                        <span id="username"></span>
+                        <button id="logout-btn" class="btn btn-outline">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Product List Section -->
+        <section id="product-section" class="product-section">
+            <h2>Product Catalog</h2>
+            
+            <!-- Advanced Search and Filters -->
+            <div class="advanced-filters">
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="text" id="advanced-search-input" placeholder="Search products, brands, features...">
+                        <button id="advanced-search-btn" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                    
+                    <div class="filter-controls">
+                        <div class="filter-group">
+                            <label for="category-filter">Category:</label>
+                            <select id="category-filter" class="filter-select">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="price-filter">Price Range:</label>
+                            <select id="price-filter" class="filter-select">
+                                <option value="">All Prices</option>
+                                <option value="0-500">Under $500</option>
+                                <option value="500-1000">$500 - $1000</option>
+                                <option value="1000-2000">$1000 - $2000</option>
+                                <option value="2000-5000">$2000 - $5000</option>
+                                <option value="5000-10000">$5000+</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="tag-filter">Tags:</label>
+                            <div class="tags-container">
+                                <div class="selected-tags" id="selected-tags"></div>
+                                <input type="text" id="tag-input" placeholder="Type tags...">
+                                <div class="tag-suggestions" id="tag-suggestions"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <button id="clear-filters" class="btn btn-outline">
+                                <i class="fas fa-times"></i> Clear Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Products Grid -->
+            <div class="products-container">
+                <div class="product-filters">
+                    <div class="pagination-controls">
+                        <button id="prev-page" class="btn btn-outline"><i class="fas fa-chevron-left"></i> Previous</button>
+                        <span id="page-info">Page 1</span>
+                        <span id="search-results-info" class="search-results-info" style="display: none;"></span>
+                        <button id="next-page" class="btn btn-outline">Next <i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                
+                <div id="product-list" class="product-list">
+                    <!-- Products will be loaded dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Shopping Cart Sidebar -->
+        <aside id="cart-sidebar" class="sidebar cart-sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-shopping-cart"></i> Shopping Cart</h3>
+                <button id="close-cart" class="close-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="cart-items" class="cart-items">
+                <!-- Cart items will be loaded dynamically -->
+            </div>
+            <div class="cart-total">
+                <p>Total: <span id="cart-total">$0.00</span></p>
+                <button id="checkout-btn" class="btn btn-primary">Checkout</button>
+            </div>
+        </aside>
+
+        <!-- Orders Section -->
+        <section id="orders-section" class="orders-section" style="display: none;">
+            <h2>My Orders</h2>
+            <div class="order-filters">
+                <select id="order-status-filter" class="status-filter">
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="hold">On Hold</option>
+                </select>
+                <input type="text" id="order-search-input" placeholder="Search by order ID...">
+                <button id="order-search-btn" class="btn btn-outline">Search</button>
+            </div>
+            <div id="orders-list" class="orders-list">
+                <!-- Orders will be loaded dynamically -->
+            </div>
+        </section>
+
+        <!-- Product Detail Modal -->
+        <div id="product-detail-modal" class="modal" style="display: none;">
+            <div class="modal-content modal-wide">
+                <div class="modal-header">
+                    <h3 id="modal-product-name"></h3>
+                    <button class="close-btn close-product-modal"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="product-detail-container">
+                        <!-- Image Gallery Section -->
+                        <div class="gallery-section">
+                            <div class="main-image-container">
+                                <img id="modal-main-image" src="" alt="" class="main-image">
+                                <div class="image-nav">
+                                    <button class="nav-btn prev-btn" id="prev-image"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="nav-btn next-btn" id="next-image"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                                <div class="image-counter" id="image-counter">1 / 1</div>
+                            </div>
+                            
+                            <div id="thumbnail-gallery" class="thumbnail-gallery">
+                                <!-- Thumbnails will be loaded dynamically -->
+                            </div>
+                            
+                            <!-- Video Section (Optional) -->
+                            <div id="video-section" class="video-section" style="display: none;">
+                                <h4>Product Video</h4>
+                                <div class="video-container">
+                                    <video id="product-video" controls class="product-video">
+                                        <source src="" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Product Info Section -->
+                        <div class="product-info-section">
+                            <div class="product-basic-info">
+                                <div class="product-price-section">
+                                    <span id="modal-product-price" class="price-large"></span>
+                                    <span id="modal-product-discount" class="discount-badge"></span>
+                                </div>
+                                
+                                <div class="product-rating">
+                                    <div class="stars" id="modal-product-rating"></div>
+                                    <span class="review-count" id="modal-product-reviews"></span>
+                                </div>
+                                
+                                <div class="product-meta">
+                                    <p><strong>SKU:</strong> <span id="modal-product-sku"></span></p>
+                                    <p><strong>Brand:</strong> <span id="modal-product-brand"></span></p>
+                                    <p><strong>Category:</strong> <span id="modal-product-category"></span></p>
+                                    <p><strong>Stock:</strong> <span id="modal-product-stock" class="stock-status"></span></p>
+                                </div>
+                                
+                                <!-- Tags Display -->
+                                <div class="product-tags" id="modal-product-tags"></div>
+                            </div>
+                            
+                            <!-- Product Actions -->
+                            <div class="product-actions">
+                                <div class="quantity-selector">
+                                    <label for="detail-quantity">Quantity:</label>
+                                    <div class="quantity-controls">
+                                        <button class="qty-btn minus-btn" id="decrease-qty">-</button>
+                                        <input type="number" id="detail-quantity" value="1" min="1" max="1">
+                                        <button class="qty-btn plus-btn" id="increase-qty">+</button>
+                                    </div>
+                                </div>
+                                <button id="add-to-cart-detail" class="btn btn-primary btn-large">
+                                    <i class="fas fa-cart-plus"></i> Add to Cart
+                                </button>
+                            </div>
+                            
+                            <!-- Detailed Product Information -->
+                            <div class="detailed-info-section">
+                                <div class="info-tabs">
+                                    <button class="info-tab active" data-tab="description">Description</button>
+                                    <button class="info-tab" data-tab="specifications">Specifications</button>
+                                    <button class="info-tab" data-tab="details">Product Details</button>
+                                </div>
+                                
+                                <div class="info-content">
+                                    <div id="tab-description" class="tab-content active">
+                                        <!-- HTML formatted description will be loaded here -->
+                                    </div>
+                                    
+                                    <div id="tab-specifications" class="tab-content">
+                                        <!-- Specifications will be loaded here -->
+                                    </div>
+                                    
+                                    <div id="tab-details" class="tab-content">
+                                        <!-- Additional details will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Related Products Section -->
+                            <div class="related-products-section">
+                                <h4>Related Products</h4>
+                                <div id="related-products" class="related-products-grid">
+                                    <!-- Related products will be loaded dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Detail Modal -->
+        <div id="order-detail-modal" class="modal" style="display: none;">
+            <div class="modal-content modal-wide">
+                <div class="modal-header">
+                    <h3>Order Details</h3>
+                    <button class="close-btn close-order-modal"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="order-detail-container">
+                        <!-- Order Summary -->
+                        <div class="order-summary-section">
+                            <div class="order-info-row">
+                                <div class="order-info-item">
+                                    <strong>Order Number:</strong>
+                                    <span id="detail-order-id">N/A</span>
+                                </div>
+                                <div class="order-info-item">
+                                    <strong>Order Date:</strong>
+                                    <span id="detail-order-date">N/A</span>
+                                </div>
+                                <div class="order-info-item">
+                                    <strong>Status:</strong>
+                                    <span id="detail-order-status" class="status-badge">N/A</span>
+                                </div>
+                            </div>
+                            
+                            <div class="order-info-row">
+                                <div class="order-info-item">
+                                    <strong>Customer:</strong>
+                                    <span id="detail-customer-name">N/A</span>
+                                </div>
+                                <div class="order-info-item">
+                                    <strong>Email:</strong>
+                                    <span id="detail-customer-email">N/A</span>
+                                </div>
+                            </div>
+                            
+                            <div class="order-info-item full-width">
+                                <strong>Shipping Address:</strong>
+                                <span id="detail-shipping-address">N/A</span>
+                            </div>
+                            
+                            <div class="order-total-row">
+                                <strong>Total Amount:</strong>
+                                <span id="detail-order-total" class="price-large">$0.00</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Order Items -->
+                        <div class="order-items-section">
+                            <h4>Order Items</h4>
+                            <div class="order-items-table-container">
+                                <table class="order-items-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>SKU</th>
+                                            <th>Quantity</th>
+                                            <th>Unit Price</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="order-items-list">
+                                        <!-- Order items will be loaded dynamically -->
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="4" style="text-align: right;"><strong>Total:</strong></td>
+                                            <td><strong id="order-items-total">$0.00</strong></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Status History -->
+                        <div class="status-history-section">
+                            <h4>Order Status History</h4>
+                            <div id="detail-status-history" class="status-timeline">
+                                <!-- Status history will be loaded dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Order Actions -->
+                        <div class="order-actions-section" id="detail-order-actions">
+                            <!-- Action buttons will be loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Container -->
+    <div id="modal-container"></div>
+
+    <!-- JavaScript Files -->
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/advanced-search.js"></script>
+    
+    <!-- JavaScript for handling modals -->
+    <script>
+        // Ensure modals can be closed
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close product detail modal
+            const closeProductModal = document.querySelector('.close-product-modal');
+            if (closeProductModal) {
+                closeProductModal.addEventListener('click', function() {
+                    document.getElementById('product-detail-modal').style.display = 'none';
+                });
+            }
+            
+            // Close order detail modal
+            const closeOrderModal = document.querySelector('.close-order-modal');
+            if (closeOrderModal) {
+                closeOrderModal.addEventListener('click', function() {
+                    document.getElementById('order-detail-modal').style.display = 'none';
+                });
+            }
+            
+            // Close modals when clicking outside
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Close product detail modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const productModal = document.getElementById('product-detail-modal');
+                    const orderModal = document.getElementById('order-detail-modal');
+                    
+                    if (productModal.style.display === 'flex') {
+                        productModal.style.display = 'none';
+                    }
+                    if (orderModal.style.display === 'flex') {
+                        orderModal.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Product detail modal image navigation
+            const prevImageBtn = document.getElementById('prev-image');
+            const nextImageBtn = document.getElementById('next-image');
+            
+            if (prevImageBtn) {
+                prevImageBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Navigation logic will be handled in main.js
+                });
+            }
+            
+            if (nextImageBtn) {
+                nextImageBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Navigation logic will be handled in main.js
+                });
+            }
+            
+            // Quantity controls in product detail
+            const decreaseQty = document.getElementById('decrease-qty');
+            const increaseQty = document.getElementById('increase-qty');
+            const detailQuantity = document.getElementById('detail-quantity');
+            
+            if (decreaseQty) {
+                decreaseQty.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (detailQuantity) {
+                        const current = parseInt(detailQuantity.value);
+                        if (current > 1) {
+                            detailQuantity.value = current - 1;
+                        }
+                    }
+                });
+            }
+            
+            if (increaseQty) {
+                increaseQty.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (detailQuantity) {
+                        const current = parseInt(detailQuantity.value);
+                        const max = parseInt(detailQuantity.max);
+                        if (current < max) {
+                            detailQuantity.value = current + 1;
+                        }
+                    }
+                });
+            }
+            
+            // Add to cart from product detail
+            const addToCartDetail = document.getElementById('add-to-cart-detail');
+            if (addToCartDetail) {
+                addToCartDetail.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // This will be handled in cart.js
+                });
+            }
+            
+            // Info tabs in product detail
+            const infoTabs = document.querySelectorAll('.info-tab');
+            infoTabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Remove active class from all tabs
+                    infoTabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all tab content
+                    const tabContents = document.querySelectorAll('.tab-content');
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Show corresponding tab content
+                    const tabId = this.getAttribute('data-tab');
+                    const targetContent = document.getElementById(`tab-${tabId}`);
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                    }
+                });
+            });
+        });
+        
+        // Debug function to check if elements are properly loaded
+        function debugElementCheck() {
+            console.log('=== DEBUG ELEMENT CHECK ===');
+            console.log('Product Detail Modal:', document.getElementById('product-detail-modal'));
+            console.log('Order Detail Modal:', document.getElementById('order-detail-modal'));
+            console.log('Product List:', document.getElementById('product-list'));
+            console.log('Orders List:', document.getElementById('orders-list'));
+            console.log('Orders Link:', document.getElementById('orders-link'));
+            console.log('Cart Link:', document.getElementById('cart-link'));
+        }
+        
+        // Call debug on load if needed
+        // debugElementCheck();
+    </script>
+</body>
+</html>

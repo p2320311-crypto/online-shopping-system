@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Online Shopping System</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 所有之前的内联样式保持不变 */
+        .admin-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .admin-header {
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .admin-nav {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .admin-content {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .admin-sidebar {
+            width: 250px;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+        
+        .admin-main {
+            flex: 1;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar-menu a {
+            display: block;
+            padding: 0.8rem 1rem;
+            color: #555;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+        
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: #f0f5ff;
+            color: #4a6cf7;
+        }
+        
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .admin-table th,
+        .admin-table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .admin-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-out-of-stock {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-container input {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+        
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4a6cf7;
+        }
+        
+        .modal-wide {
+            max-width: 800px;
+        }
+        
+        .order-detail-modal {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .order-line-items {
+            margin-top: 1rem;
+        }
+        
+        .order-line-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="../index.html">Online Shopping System</a> / Admin Panel
+            </div>
+            <div class="nav-menu">
+                <a href="../index.html"><i class="fas fa-store"></i> Back to Store</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1><i class="fas fa-cogs"></i> Administration Panel</h1>
+            <p class="admin-subtitle">Manage products, orders, and customers</p>
+            <div class="admin-nav">
+                <button class="btn btn-primary" id="add-product-btn">
+                    <i class="fas fa-plus"></i> Add Product
+                </button>
+                <button class="btn btn-outline" id="refresh-btn">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <button class="btn btn-outline" id="export-btn">
+                    <i class="fas fa-download"></i> Export Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <h3>Total Products</h3>
+                <div class="value" id="total-products">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Products</h3>
+                <div class="value" id="active-products">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Orders</h3>
+                <div class="value" id="total-orders">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Revenue</h3>
+                <div class="value" id="total-revenue">$0</div>
+            </div>
+        </div>
+
+        <div class="admin-content">
+            <aside class="admin-sidebar">
+                <nav class="sidebar-menu">
+                    <a href="#" class="active" data-section="products"><i class="fas fa-box"></i> Product Management</a>
+                    <a href="#" data-section="orders"><i class="fas fa-clipboard-list"></i> Order Management</a>
+                    <a href="#" data-section="customers"><i class="fas fa-users"></i> Customer Management</a>
+                </nav>
+            </aside>
+
+            <main class="admin-main">
+                <!-- Product Management -->
+                <section id="products-section" class="admin-section">
+                    <h2><i class="fas fa-box"></i> Product Management</h2>
+                    <div class="search-container">
+                        <input type="text" id="product-search" placeholder="Search by product name, SKU or ID...">
+                        <select id="product-status-filter">
+                            <option value="all">All Status</option>
+                            <option value="active">Active Only</option>
+                            <option value="inactive">Inactive Only</option>
+                        </select>
+                        <button id="product-search-btn" class="btn btn-primary">Search</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>SKU</th>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-product-list">
+                                <!-- Product data will be loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Order Management -->
+                <section id="orders-section" class="admin-section" style="display: none;">
+                    <h2><i class="fas fa-clipboard-list"></i> Order Management</h2>
+                    <div class="search-container">
+                        <input type="text" id="order-search" placeholder="Search by order ID or customer name...">
+                        <select id="order-status-filter">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="hold">On Hold</option>
+                        </select>
+                        <button id="order-search-btn" class="btn btn-primary">Search</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>Total Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-orders-list">
+                                <!-- Order data will be loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Customer Management -->
+                <section id="customers-section" class="admin-section" style="display: none;">
+                    <h2><i class="fas fa-users"></i> Customer Management</h2>
+                    <div class="search-container">
+                        <input type="text" id="customer-search" placeholder="Search by customer name or email...">
+                        <button id="customer-search-btn" class="btn btn-primary">Search</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Address</th>
+                                    <th>Registered Date</th>
+                                    <th>Orders</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-customers-list">
+                                <!-- Customer data will be loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal Container -->
+    <div id="modal-container"></div>
+
+    <!-- JavaScript Files -->
+    <!-- 注意：这里使用正确的相对路径 -->
+    <script src="../js/main.js"></script>
+    <script src="admin.js"></script> <!-- 注意：admin.js 在 admin 目录下 -->
+</body>
+</html>
